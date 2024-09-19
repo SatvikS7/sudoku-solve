@@ -1,21 +1,25 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const ppt = require("puppeteer");
+import puppeteer from "puppeteer";
 
-window.addEventListener('DOMContentLoaded', init);
-function init() {
-  (async () => {
-      const browser = await ppt.launch();
+(async () => {
+  try {
+      console.log('starting');
+      const browser = await puppeteer.launch({ 
+          headless: false 
+      });
+      console.log('one');
       const page = await browser.newPage();
-
-      await page.goto('https://www.nytimes.com/puzzles/sudoku', {waitUntil: "domcontentloaded",});
-      //let btn = await document.getElementsByClassName('_momentButton_m3x3m_1 _primary_m3x3m_113 _default_m3x3m_1')
-      //await page.click(btn);
-      await setTimeout(() => {
-          console.log("Delayed for 5 second.");
-        }, "5000");
-      await page.click(document.getElementsByName("Easy"));     
-      await page.screenshot({path: 'test.png'});
+      console.log('two');
+      await page.goto('https://www.nytimes.com/puzzles/sudoku');
+      console.log('three');
+      await Promise.all([
+        page.waitForNavigation({waitUntil: 'networkidle0'}),
+        page.locator('button ::-p-text(Easy)').click(),
+      ]);     
+      console.log("Page is up");
+      await page.screenshot({path: 'example.png'});
       await browser.close();
-  })();
-}
+  }
+  catch (e) {
+      console.log("Error",e);
+  }
+})();
