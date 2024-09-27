@@ -2,21 +2,39 @@ import puppeteer from "puppeteer";
 
 (async () => {
   try {
-      console.log('starting');
+      //launch puppeteer 
       const browser = await puppeteer.launch({ 
           headless: false 
       });
-      console.log('one');
+
+      //wait for page to open
       const page = await browser.newPage();
-      console.log('two');
+
+      //go to website
       await page.goto('https://www.nytimes.com/puzzles/sudoku');
-      console.log('three');
+
+      //click easy difficulty and wait for page to load
       await Promise.all([
         page.waitForNavigation({waitUntil: 'networkidle0'}),
         page.locator('button ::-p-text(Easy)').click(),
       ]);     
-      console.log("Page is up");
-      await page.screenshot({path: 'example.png'});
+
+      //get all cell elements
+      var grid = await page.$$('[data-testid="sudoku-cell"]');
+
+      var arr = [];
+
+      //extract number if it exists, else push a 0
+      for(const cell of grid) {
+        var ele = await (await cell.getProperty("ariaLabel")).jsonValue();
+        if(ele == "empty") {
+          arr.push(0);
+        } else {
+          arr.push(parseInt(ele))
+        }
+      }
+
+      //close browser
       await browser.close();
   }
   catch (e) {
