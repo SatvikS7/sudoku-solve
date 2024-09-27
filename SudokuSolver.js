@@ -1,141 +1,86 @@
 import { Util } from "./Util.js";
-
-
-function checkNum(board, r, c, num) {
-    //check row for same num
-    for(let col = 0; col < 9; col++) {
-        if(board[r][col] === num) {
-            return false;
+ 
+const solver = {
+    validate: function(r, c, board, num) {
+        //check row for same num
+        for(let i = 0; i < 9; i++) {
+            if(board[r][i] === num) return false;
         }
-    }
 
-    //check col for same num
-    for(let row = 0; row < 9; row++) {
-        if(board[row][c] === num) {
-            return false;
+        //check col for same num
+        for(let i = 0; i < 9; i++) {
+            if(board[i][c] === num) return false;
         }
-    }
 
-    //check square for same num
-    for(let i = r-(r%3); i < r-(r%3)+3; i++) {
-        for(let j = c-(c%3); j < c-(c%3)+3; j++) {
-            if(i != r && j != c) {
-                if(board[i][j] === num) {
-                    return false;
+        var squareR = r - r%3;
+        var squareC = c - c%3;
+
+        //check square for same num
+        for(let i = squareR; i < squareR+3; i++) {
+            for(let j = squareC; j < squareC+3; j++) {
+                if(board[i][j] === num) return false;
+            }
+        }
+
+        return true;
+    },
+
+    printBoard: function(board) {
+        for(let i = 0; i < board.length; i++) {
+            let temp = [];
+            for(let j = 0; j < board[0].length; j++) { 
+                temp.push(board[i][j]);
+            }
+            console.log(temp);
+        }
+    },
+
+    solve: function(board) {
+        var r = -1;
+        var c = -1; 
+        var done = true;
+        var original = board;
+
+        //check if board is done
+        for(let i = 0; i < board.length; i++) {
+            for(let j = 0; j < board[0].length; j++) {
+                if(board[i][j] == 0) {
+                    done = false;
+                    r = i;
+                    c = j;
+                    break;
+                }
+            }
+
+            if(!done) break;
+        }
+
+        //if board is done return true
+        if(done) {
+            console.log('Original: ');
+            this.printBoard(original);
+            console.log('Solved Board');
+            this.printBoard(board);
+            return true;
+        }
+
+        //if not done try all numbers through backtracking
+        for(let i = 1; i < 10; i++) {
+            if(this.validate(r, c, board, i)) {
+                board[r][c] = i;
+                if(this.solve(board)) {
+                    return true;
+                } else {
+                    board[r][c] = 0
                 }
             }
         }
-    }
 
-    return true;
-}
+        return false;
+    },
+};
 
-function checkValid(board) {
-    for(let i = 0; i < 9; i++) {
-        for(let j = 0; j < 9; j++) {
-            if(!checkNum(board, i, j, board[i][j])) {
-                console.log({i, j})
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-function isComplete(board) {
-    for(let i = 0; i < 9; i++) {
-        for(let j = 0; j < 9; j++) {
-            if(board[i][j] === 0) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-function adjNumRecur(board, r, c, num) {
-    if(num === 10) {
-        return 0;
-    }
-    if(!checkNum(board, r, c, num)) {
-        return adjNumRecur(board, r, c, num+1);
-    } else {
-        return num;
-    }
-}
-
-function shuffle(array) {
-    let currIdx = array.length, randIdx;
-
-    while(currIdx > 0) {
-        randIdx = Math.floor(Math.random() * currIdx);
-        currIdx--;
-
-        [array[currIdx], array[randIdx]] = [array[randIdx], array[currIdx]];
-    }
-
-    return array;
-}
-
-function solve(board) {
-    const initialize2DArray = (w, h, val = null) =>
-        Array.from({ length:h }).map(() => Array.from({ length: w }).fill(val));
-    var isBlank = initialize2DArray(9, 9, false);
-    var r = 0;
-    var c = 0;
-    var firstR = -1;
-    var firstC = -1; 
-    var firstPass = true;
-
-    while(r < 9 && c < 9) {
-        if(board[r][c] != 0 && isBlank[r][c] == false) {
-            if(c == 8) {
-                c = 0;
-                r++;
-            } else {
-                c++;
-            }
-            continue;
-        } else {
-            isBlank[r][c] = true;
-            if(firstPass) {
-                firstC = c;
-                firstR = r;
-                firstPass = false;
-            }
-        }
-
-        board[r][c] = adjNumRecur(board, r, c, board[r][c]+1);
-        if(board[r][c] == 0) {
-            if(firstC == c && firstR == r) {
-                console.log("No solution exists");
-                return;
-            }
-            if(c == 0) {
-                c = 8;
-                r--;
-            } else {
-                c--;
-            }  
-            while(isBlank[r][c] != true) {
-                if(c == 0) {
-                    c = 8;
-                    r--;
-                } else {
-                    c--;
-                }        
-            }
-        } else {
-            if(c == 8) {
-                c = 0;
-                r++;
-            } else {
-                c++;
-            }
-        }
-    }
-}
-
+/*
 function createSudoku() {
     let sudoku = getRandomSudoku();
 
@@ -181,11 +126,15 @@ function getRandomSudoku() {
     Util.print2DArray(sudoku);
     return sudoku;
 }
+    */
 
+export { solver }
 
+/*
 let solution = [];
 let grid = getRandomSudoku();
 Util.print2DArray(grid);
 Util.copyGrid(grid, solution);
 solve(solution);
 Util.print2DArray(solution);
+*/

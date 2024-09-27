@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer";
+import { solver } from "./SudokuSolver.js";
 
 (async () => {
   try {
@@ -16,28 +17,39 @@ import puppeteer from "puppeteer";
       //click easy difficulty and wait for page to load
       await Promise.all([
         page.waitForNavigation({waitUntil: 'networkidle0'}),
-        page.locator('button ::-p-text(Easy)').click(),
+        page.locator('button ::-p-text(Hard)').click(),
       ]);     
 
       //get all cell elements
       var grid = await page.$$('[data-testid="sudoku-cell"]');
 
       var arr = [];
+      var temp = [];
 
       //extract number if it exists, else push a 0
       for(const cell of grid) {
         var ele = await (await cell.getProperty("ariaLabel")).jsonValue();
         if(ele == "empty") {
-          arr.push(0);
+          temp.push(0);
         } else {
-          arr.push(parseInt(ele))
+          temp.push(parseInt(ele))
+        }
+
+        if(temp.length == 9) {
+          arr.push(temp);
+          temp = [];
         }
       }
 
       //close browser
       await browser.close();
+
+      console.log(solver.solve(arr));
   }
   catch (e) {
       console.log("Error",e);
   }
 })();
+
+
+

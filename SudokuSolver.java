@@ -50,7 +50,7 @@ public class SudokuSolver {
         boolean done = true;
         int r = -1;
         int c = -1;
-        for(int i = 0; i < board.length;i ++) {
+        for(int i = 0; i < board.length; i++) {
             for(int j = 0; j < board[0].length; j++) {
                 if(board[i][j] == 0) {
                     done = false;
