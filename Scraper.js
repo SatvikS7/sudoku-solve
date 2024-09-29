@@ -44,7 +44,10 @@ import { solver } from "./SudokuSolver.js";
       //close browser
       await browser.close();
 
-      console.log(solver.solve(arr));
+      //run solver on the sudoku board
+      console.log("Original: ");
+      solver.printBoard(arr);
+      solver.solve(arr);
   }
   catch (e) {
       console.log("Error",e);

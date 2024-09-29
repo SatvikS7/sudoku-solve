@@ -26,13 +26,21 @@ const solver = {
     },
 
     printBoard: function(board) {
-        for(let i = 0; i < board.length; i++) {
-            let temp = [];
-            for(let j = 0; j < board[0].length; j++) { 
-                temp.push(board[i][j]);
+        for (let i = 0; i < board.length; i++) {
+            if (i % 3 === 0 && i !== 0) {
+              console.log("-".repeat(29));
             }
-            console.log(temp);
-        }
+        
+            let row = "";
+            for (let j = 0; j < board[i].length; j++) {
+              if (j % 3 === 0 && j !== 0) {
+                row += "| ";
+              }
+        
+              row += board[i][j] !== 0 ? board[i][j] + "  " : ".  ";
+            }
+            console.log(row);
+          }
     },
 
     solve: function(board) {
@@ -57,8 +65,6 @@ const solver = {
 
         //if board is done return true
         if(done) {
-            console.log('Original: ');
-            this.printBoard(original);
             console.log('Solved Board');
             this.printBoard(board);
             return true;
